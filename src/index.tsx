@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import {name} from "../package.json"
+
+document.title=name
 
 ReactDOM.render(
   <React.StrictMode>
