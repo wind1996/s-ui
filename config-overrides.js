@@ -10,7 +10,6 @@ const rewiredMap = () => config => {
 }
 
 const devServerConfig = () => config => {
-    console.error('1111111111111111',config)
     config.open = false;
     config.compress = false;
     config.proxy={
