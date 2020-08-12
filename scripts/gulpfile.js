@@ -11,6 +11,7 @@ const filter = require("gulp-filter")
 
 const esDir = path.resolve(__dirname, "./../es")
 const distDir = path.resolve(__dirname, "./../dist")
+const libDir = path.resolve(__dirname, "./../lib")
 console.log(esDir)
 
 gulp.task("less-es", () => gulp
@@ -65,3 +66,38 @@ gulp.task("ts-dist", () => gulp
 // gulp.task("ts->dist", gulp.series(gulp.parallel("ts->dist-min", "ts->dist")))
 
 gulp.task("build-dist", gulp.series(gulp.parallel("less-dist","ts-dist")))
+
+gulp.task("less-lib", () => {
+        const cssFilter = filter('**/*.css', {restore: true});
+        return gulp.src(['../src/components/s-ui.less'], {sourcemaps: true})
+            .pipe(less({
+                paths: [path.join(__dirname, "../")]
+            }))
+            .pipe(gulp.dest(distDir, {sourcemaps: "."}))
+            .pipe(cssFilter)
+            .pipe(rename({suffix: '.min'}))
+            .pipe(csso())
+            .pipe(gulp.dest(libDir, {sourcemaps: "."}))
+    }
+)
+
+// gulp.task("less-dist", gulp.series(gulp.parallel("less-dist->css", "less-dist->min-css")))
+
+var tsProject = ts.createProject('../tsconfig.build2.json');
+
+gulp.task("ts-lib", () => gulp
+    .src(['../src/components/index.tsx'], {sourcemaps: true})
+    .pipe(tsProject())
+    .pipe(webpack({
+        output: {
+            filename: "s-ui.js"
+        },
+        devtool: 'source-map',
+    }))
+    // .pipe(rename({suffix: '.min'}))
+    .pipe(gulp.dest(libDir, {sourcemaps: "."}))
+)
+
+// gulp.task("ts->dist", gulp.series(gulp.parallel("ts->dist-min", "ts->dist")))
+
+gulp.task("build-dist", gulp.series(gulp.parallel("less-lib","ts-lib")))

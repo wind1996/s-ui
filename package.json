@@ -34,6 +34,7 @@
     "build-ts": "tsc -p tsconfig.build.json",
     "build-es": "node ./scripts/build.es.js",
     "build-dist": "node ./scripts/build.dist.js",
+    "build-lib": "node ./scripts/build.lib.js",
     "build-s-ui": "npm run build-es && npm run build-dist",
     "prepublish": "npm run build-s-ui"
   },
