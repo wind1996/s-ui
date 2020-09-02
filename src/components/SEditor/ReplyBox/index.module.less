@@ -1,0 +1,25 @@
+@gray-color: #F2F2F2;
+@blue-color: #1890FF;
+
+.ReplyBox {
+  background: @gray-color;
+
+  .controlPanel {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 3px;
+    user-select: none;
+    -moz-user-select: none;
+
+    .icon {
+      color: @blue-color;
+      margin-right: 8px;
+      font-size: 22px;
+
+      i {
+        -moz-user-select: none;
+      }
+    }
+  }
+}

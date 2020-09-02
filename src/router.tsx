@@ -26,6 +26,12 @@ const routes = [
         title: '导航-Navigation',
         exact: true,
         component: Async(() => import(/* webpackChunkName:'Navigation' */'./components/Navigation/demo/example')),
+    },
+    {
+        path: '/sEditor',
+        title: '编辑器-sEditor',
+        exact: true,
+        component: Async(() => import(/* webpackChunkName:'Navigation' */'./components/SEditor/demo/example')),
     }
 ];
 
