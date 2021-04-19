@@ -1,5 +1,5 @@
 import React from "react";
-import SEditor from "../sEditor";
+import SEditor from "../index";
 import "../style";
 
 export default class Navigation extends React.Component {

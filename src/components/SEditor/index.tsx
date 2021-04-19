@@ -1,2 +1,4 @@
-import sEditor from './sEditor'
-export default sEditor
+import SEditor from './Editor'
+
+SEditor.displayName = "SEditor"
+export default SEditor

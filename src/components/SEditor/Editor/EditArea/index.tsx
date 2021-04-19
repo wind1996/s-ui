@@ -1,28 +1,44 @@
 import React from 'react';
 import styles from './index.module.less';
-import EmojiIconStyle from '../WeChatExpressionPanel/EmojiItem/index.module.less';
-import {MESSAGE_TYPE, transparentBase64} from '../const';
+import EmojiIconStyle from '../OperatorBar/ExpressionPanel/EmojiItem/index.module.less';
+import {MESSAGE_TYPE, transparentBase64} from '../const/const';
 
 const message = {
     error: console.log
 }
 
-class EditContent extends React.Component {
-    constructor(props) {
+interface addDataType {
+    key: number,
+    dataURL: string
+}
+
+export interface EditContentProps {
+    onTextChange: (text: string) => void,
+    onImgPaste: any,
+    addDataURL: (arg: addDataType) => void,
+    textContentStyle: any
+}
+
+class EditContent extends React.Component<EditContentProps> {
+    inputArea: any
+    selection: any
+    range: any
+
+    constructor(props: EditContentProps) {
         super(props);
         this.state = {};
-        this.inputArea = null;
+        this.inputArea = React.createRef();
         this.selection = (window.getSelection && window.getSelection())
             || window.document.getSelection();
         this.setBtnStatus = this.setBtnStatus.bind(this);
     }
 
-    getTextAndFileFromClipboard = ({items}) => new Promise((resolve) => {
+    getTextAndFileFromClipboard = ({items}: Record<any, object>) => new Promise((resolve) => {
         for (const item of Object.values(items)) {
             if (item.type.indexOf('image') !== -1) {
                 resolve({file: item.getAsFile()});
             } else if (item.type === 'text/plain') {
-                item.getAsString((text) => {
+                item.getAsString((text: string) => {
                     resolve({text});
                 });
             }
@@ -35,13 +51,13 @@ class EditContent extends React.Component {
     }
 
     // 清楚输入框的内容
-    clearValue = () => {
+    clearValue = (): void => {
         this.inputArea.innerHTML = '';
         this.setBtnStatus();
     };
 
     // 设置输入框内容
-    setValue = (html) => {
+    setValue = (html: string): void => {
         this.inputArea.innerHTML = html;
         this.setBtnStatus();
     };
@@ -49,7 +65,7 @@ class EditContent extends React.Component {
     /**
      * 向选中区域插入DOM
      */
-    handleInsertContent = (dom) => {
+    handleInsertContent = (dom: HTMLElement) => {
         if (!this.range) {
             return false;
         }
@@ -60,26 +76,26 @@ class EditContent extends React.Component {
         return true;
     };
 
-    insertText = (text, clearFlag = false) => {
+    insertText = (text: string, clearFlag = false) => {
         if (clearFlag) {
             this.selection.selectAllChildren(this.inputArea);
             this.setNewRange();
         }
-        let span = document.createElement('span');
+        let span: any = document.createElement('span');
         span.innerText = text;
-        this.handleInsertContent(span);
+        this.handleInsertContent(span as HTMLHtmlElement);
         span = null;
     };
 
-    handleKeyDown = (e) => {
+    handleKeyDown = () => {
 
     };
 
-    handlePaste = (event) => {
+    handlePaste = (event: any) => {
         this.setNewRange();
         event.preventDefault();
         const {onImgPaste} = this.props;
-        this.getTextAndFileFromClipboard(event.clipboardData).then(({file, text}) => {
+        this.getTextAndFileFromClipboard(event.clipboardData).then(({file, text}: any) => {
             if (file) {
                 if (file.size > 2 * 1024 * 1024) {
                     message.error('图片超出2MB,粘贴失败');
@@ -92,17 +108,17 @@ class EditContent extends React.Component {
             if (text) {
                 this.insertText(text);
             }
-        }).catch((e) => {
+        }).catch((e: any) => {
             console.log(e);
         });
     };
 
-    insertImgFromClipboard = ({file, key}) => {
+    insertImgFromClipboard = ({file, key}: any) => {
         const {addDataURL} = this.props;
         const fileReader = new FileReader();
         fileReader.readAsDataURL(file);
-        fileReader.onload = (e) => {
-            let img = document.createElement('img');
+        fileReader.onload = (e: any) => {
+            let img: HTMLImageElement | null = document.createElement('img');
             img.setAttribute('upload-Img-key', key);
             img.setAttribute('data-img-preview', 'true');
             img.src = e.target.result;
@@ -126,8 +142,8 @@ class EditContent extends React.Component {
     };
 
     setNewRange = () => {
-        console.error("this.selection",this.selection)
-        setTimeout(()=>{
+        console.error("this.selection", this.selection)
+        setTimeout(() => {
             this.range = this.selection.getRangeAt(0);
         })
     }
@@ -136,17 +152,17 @@ class EditContent extends React.Component {
      * 获取文本输入框的内容
      * @returns {string}
      */
-    getInputBoxHTML = () => (this.inputArea && this.inputArea.innerHTML) || '';
+    getInputBoxHTML = (): string => (this.inputArea && this.inputArea.innerHTML) || '';
 
     /**
      * 获取文本输入框的内容
      * @returns {string}
      */
-    getInputBoxText = (HTML) => {
+    getInputBoxText = (HTML?: HTMLHtmlElement | string): string => {
         const div = document.createElement('div');
         let string = this.getInputBoxHTML();
         if (HTML !== undefined) {
-            string = HTML;
+            string = HTML as string;
         }
         div.innerHTML = string.replace(/(<div>.+?<\/div>)/gi, '\n$1').replace(/(<img.+?text="\S+".+?>)/gi,
             match => match.replace(/<img.+text="(\S+?)".+>/, '<span>$1</span>'))
@@ -156,7 +172,7 @@ class EditContent extends React.Component {
 
     getMessageArray = () => {
         const splitImgTextReg = /(<img.{0,4}upload-img-key=".+?>)/g;
-        return this.getInputBoxHTML().split(splitImgTextReg).reduce((pre, cur) => {
+        return this.getInputBoxHTML().split(splitImgTextReg).reduce((pre: any[], cur: string) => {
             const ImgKey = this.getImgKeyList(cur);
             if (ImgKey) {
                 return [...pre,
@@ -168,7 +184,7 @@ class EditContent extends React.Component {
                     },
                 ];
             }
-            const text = this.getInputBoxText(cur);
+            const text: string = this.getInputBoxText(cur);
             if (text && /\S/.exec(text)) {
                 return [...pre,
                     {
@@ -183,7 +199,7 @@ class EditContent extends React.Component {
         }, []);
     };
 
-    getImgKeyList = (HTML) => {
+    getImgKeyList = (HTML: any) => {
         const reg = new RegExp(/<img.+?upload-img-key="(\S+)".+?>/gi);
 
         let string = this.getInputBoxHTML();
@@ -219,8 +235,8 @@ class EditContent extends React.Component {
         return range.cloneContents();
     };
 
-    insertWeChatExpression = ({text, style, imgIndex} = {}) => {
-        const img = document.createElement('img');
+    insertWeChatExpression = ({text, style, imgIndex}: any = {}) => {
+        const img: HTMLImageElement = document.createElement('img');
         img.src = `https://res.wx.qq.com/mpres/htmledition/images/icon/emotion/${imgIndex}.gif`;
         img.className = `${EmojiIconStyle.icon} ${EmojiIconStyle.emojiIcon}`;
         img.onload = () => {
@@ -238,7 +254,7 @@ class EditContent extends React.Component {
     };
 
     render() {
-        const {textContentStyle={}}=this.props
+        const {textContentStyle = {}} = this.props
         return (
             <div className={styles.inputBox}>
                   <pre

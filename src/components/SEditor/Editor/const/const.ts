@@ -6,8 +6,13 @@ interface MESSAGE_TYPE {
     LABEL: string
 }
 
+interface ConstItem {
+    VAL: number,
+    LABEL: string
+}
+
 // 消息内容类型
-export const MESSAGE_TYPE: Object = {
+export const MESSAGE_TYPE: Record<string, ConstItem> = {
     TEXT: {
         VAL: 1,
         LABEL: '文本和表情',

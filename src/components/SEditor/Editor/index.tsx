@@ -1,6 +1,7 @@
 import React from 'react';
-import EditContent from './EditContent';
-import WeChatExpressionPanel from './WeChatExpressionPanel';
+import EditContent from './EditArea';
+import ExpressionPanel from './OperatorBar/ExpressionPanel';
+import UploadPic from "./OperatorBar/UploadPic";
 import styles from './index.module.less';
 
 const message = {
@@ -8,11 +9,19 @@ const message = {
     success: console.log
 }
 
-class ReplyBox extends React.PureComponent {
+export interface SEditorProps {
+    contentStyle?: React.CSSProperties,
+    className?: string
+}
 
-    inputBox = null;
+class SEditor extends React.PureComponent<SEditorProps> {
+    static displayName: string = "SEditor"
 
-    dataURLList = null;
+    static defaultProps = {}
+
+    inputBox: any;
+
+    dataURLList: string[] = [];
 
     state = {
         file: '',
@@ -22,14 +31,14 @@ class ReplyBox extends React.PureComponent {
     componentDidMount() {
         window.setTimeout(() => {
             this.inputBox && this.inputBox.setValue("default value");
-            this.inputBox.inputArea.focus();
+            this.inputBox && this.inputBox.inputArea.focus();
         });
     }
 
     // 选择图片Input事件
-    handleUploadFile = (e) => {
+    handleUploadFile = (e: any) => {
         const fileList = e.target.files;
-        Object.values(fileList).forEach((file) => {
+        Object.values(fileList).forEach((file: any) => {
             if (file.size > 200 * 1024 * 1024) {
                 message.error(`图片${file.name}超出2MB，插入失败`);
                 return;
@@ -42,64 +51,49 @@ class ReplyBox extends React.PureComponent {
     };
 
     // 向输入框之前的光标处插入微信表情
-    _InsertWeChatExpression = (arg) => {
+    _InsertWeChatExpression = (arg: any) => {
         this.inputBox.insertWeChatExpression(arg);
     };
 
     // 将base64图片存储在父组件,用于图片的额loading
+    // @ts-ignore
     _handleAddDataURL = ({dataURL, key}) => {
         this.dataURLList = {
             ...this.dataURLList,
-            [key]: dataURL,
+            [key as number]: dataURL as string,
         };
     };
 
-    handleInputTextChange = (textInput) => {
+    handleInputTextChange = (textInput: string) => {
         this.setState(
             {textInput: textInput.replace(/\n/, '').trim()}
         );
     };
 
-    onImgPaste=()=>{
+    onImgPaste = () => {
 
     }
 
     render() {
-        const {textContentStyle = {}} = this.props
-        const randNum = Math.ceil(Math.random() * 100000);
+        const {contentStyle = {}, className} = this.props
         return (
-            <div className={styles.ReplyBox}>
-                <div className={styles.controlPanel}>
-                    <span>
-                        <input
-                            type="file"
-                            id={`id${randNum}`}
-                            accept="image/jpeg,image/jpg,image/png"
-                            style={{width: 0, visibility: 'hidden', position: 'absolute'}}
-                            value={this.state.file}
-                            onChange={this.handleUploadFile}
-                            multiple="multiple"
-                        />
-                        <label htmlFor={`id${randNum}`} className={`${styles.icon} hover`}>
-                            上传图片
-                        </label>
-                    </span>
-                </div>
-                <WeChatExpressionPanel
+            <div className={styles.ReplyBox + " " + className}>
+                <UploadPic onUploadFile={this.handleUploadFile} file={this.state.file}/>
+                <ExpressionPanel
                     insertEmoji={this._InsertWeChatExpression}
                 />
                 <EditContent
                     ref={(ref) => {
-                        this.inputBox = ref;
+                        this.inputBox = ref
                     }}
                     onImgPaste={this.onImgPaste}
                     addDataURL={this._handleAddDataURL}
                     onTextChange={this.handleInputTextChange}
-                    textContentStyle={textContentStyle}
+                    textContentStyle={contentStyle}
                 />
             </div>
         );
     }
 }
 
-export default ReplyBox;
+export default SEditor;
