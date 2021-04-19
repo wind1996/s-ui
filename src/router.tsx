@@ -26,6 +26,12 @@ const routes = [
         title: '导航-Navigation',
         exact: true,
         component: Async(() => import(/* webpackChunkName:'Navigation' */'./components/Navigation/demo/example')),
+    },
+    {
+        path: '/count',
+        title: '时间计数器-TimeCounter',
+        exact: true,
+        component: Async(() => import(/* webpackChunkName:'Navigation' */'./components/timeCount/demo/example')),
     }
 ];
 
